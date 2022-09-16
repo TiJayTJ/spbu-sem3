@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
  */
 public class IntSortTest
 {
-  public static final int SEED = 1;
+  public static final int SEED = 5;
   public static final int ARRAY_SIZE = 10000000;
 
   /**
@@ -42,6 +42,16 @@ public class IntSortTest
     for (int i = 0; i < array.length ; i++) {
       assertTrue("Element " + array[i] + " at " + i + " position is not in the order", array[i] >= previousValue );
       previousValue = array[i];
+    }
+  }
+
+  //@Test
+  public void testMerge() throws Exception
+  {
+    int array[] = {2, 4, 7, 9, 3, 5, 8, 10, 11};
+    IntSort.merge(array, 0, array.length / 2, array.length);
+    for (int i = 0; i < array.length; i++) {
+      System.out.println(array[i]);
     }
   }
 
