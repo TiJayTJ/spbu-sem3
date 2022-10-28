@@ -8,10 +8,9 @@ import java.util.List;
  * Created by artemaliev on 07/09/15.
  */
 public class IntSort {
-  public static void merge(int array[], int left, int mid, int right){
+  public static void merge(int array[], int result[], int left, int mid, int right){
     int i = 0;
     int j = 0;
-    int result[] = new int[right - left];
 
     while (left + i < mid && mid + j < right)
     {
@@ -45,13 +44,13 @@ public class IntSort {
   }
 
   public static void sort (int array[]) {
-    //Arrays.sort(array);
     int size = array.length;
+    int[] result = new int[size];
     for (int i = 1; i < size; i *= 2)
     {
       for (int j = 0; j < size - i; j += i * 2)
       {
-        merge(array, j, j+i, Math.min(j + i * 2, size));
+        merge(array, result, j, j+i, Math.min(j + i * 2, size));
       }
     }
   }

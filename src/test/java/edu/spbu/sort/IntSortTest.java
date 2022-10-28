@@ -31,7 +31,7 @@ public class IntSortTest
     return array;
   }
 
-  @Test
+  //@Test
   public void testSortArray() throws Exception {
     int array[] = generateRandomIntArray(ARRAY_SIZE, SEED);
 
@@ -46,16 +46,6 @@ public class IntSortTest
   }
 
   //@Test
-  public void testMerge() throws Exception
-  {
-    int array[] = {2, 4, 7, 9, 3, 5, 8, 10, 11};
-    IntSort.merge(array, 0, array.length / 2, array.length);
-    for (int i = 0; i < array.length; i++) {
-      System.out.println(array[i]);
-    }
-  }
-
-  @Test
   public void testSortList() throws Exception {
     int array[] = generateRandomIntArray(ARRAY_SIZE, SEED);
     List<Integer> list = new ArrayList<Integer>(ARRAY_SIZE);
