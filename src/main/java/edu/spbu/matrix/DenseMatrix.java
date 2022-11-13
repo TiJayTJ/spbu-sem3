@@ -13,13 +13,13 @@ import java.util.stream.Collectors;
  */
 public class DenseMatrix implements Matrix
 {
-  /**
-   * загружает матрицу из файла
-   * @param fileName
-   */
   private List<List<Integer>> matrixList = new ArrayList<>();
   int hashcode = 0;
 
+  /**
+   * загружает матрицу из файла
+   * @param fileName - name of file
+   */
   public DenseMatrix(String fileName) {
     try {
       FileReader fr = new FileReader(fileName);
@@ -76,15 +76,7 @@ public class DenseMatrix implements Matrix
   }
 
 
-  /**
-   * однопоточное умнджение матриц
-   * должно поддерживаться для всех 4-х вариантов
-   *
-   * @param o
-   * @return
-   */
-
-  private List<List<Integer>> Matrix_transposition(){
+  private List<List<Integer>> matrixTransposition(){
     List<List<Integer>> ret = new ArrayList<>();
     int n = this.matrixList.get(0).size();
     for (int i = 0; i < n; i++) {
@@ -97,11 +89,19 @@ public class DenseMatrix implements Matrix
     return ret;
 
   }
+
+  /**
+   * однопоточное умнджение матриц
+   * должно поддерживаться для всех 4-х вариантов
+   *
+   * @param o - matrix
+   * @return - DenseMatrix
+   */
   @Override public Matrix mul(Matrix o)
   {
     List<List<Integer>> matrixMul = new ArrayList<>();
     List<List<Integer>> matrix1 = this.matrixList;
-    List<List<Integer>> matrix2 = (((DenseMatrix)o).matrixList != null) ? ((DenseMatrix)o).Matrix_transposition() : null;
+    List<List<Integer>> matrix2 = (((DenseMatrix)o).matrixList != null) ? ((DenseMatrix)o).matrixTransposition() : null;
     int count = 0;
 
     if (matrix1 == null || matrix2 == null){
@@ -135,8 +135,8 @@ public class DenseMatrix implements Matrix
   /**
    * многопоточное умножение матриц
    *
-   * @param o
-   * @return
+   * @param o - matrix
+   * @return -  DenseMatrix
    */
   @Override public Matrix dmul(Matrix o)
   {
@@ -145,8 +145,8 @@ public class DenseMatrix implements Matrix
 
   /**
    * спавнивает с обоими вариантами
-   * @param o
-   * @return
+   * @param o - matrix
+   * @return - True or False
    */
   @Override public boolean equals(Object o) {
     if(this == o){
@@ -166,6 +166,5 @@ public class DenseMatrix implements Matrix
         return this.matrixList.equals(((DenseMatrix) o).matrixList);
       }
     }
-
   }
 }
