@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  */
 public class DenseMatrix implements Matrix
 {
-  private List<List<Integer>> matrixList = new ArrayList<>();
+  private List<List<Double>> matrixList = new ArrayList<>();
   int hashcode = 0;
 
   /**
@@ -36,12 +36,12 @@ public class DenseMatrix implements Matrix
             throw new IOException("Not rectangular matrix");
           }
 
-          int[] lineInt = new int[lineString.length];
+          double[] lineDouble = new double[lineString.length];
           for (int i = 0; i < lineString.length; i++){
-            lineInt[i] = Integer.parseInt(lineString[i]);
+            lineDouble[i] = Double.parseDouble(lineString[i]);
           }
 
-          this.matrixList.add(Arrays.stream(lineInt).boxed().collect(Collectors.toList()));
+          this.matrixList.add(Arrays.stream(lineDouble).boxed().collect(Collectors.toList()));
           line = reader.readLine();
         }
         hashcode = this.matrixList.hashCode();
@@ -51,10 +51,10 @@ public class DenseMatrix implements Matrix
       fr.close();
 
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      System.out.println(e.getMessage());
     }
   }
-  public DenseMatrix(List<List<Integer>> matrix){
+  public DenseMatrix(List<List<Double>> matrix){
     this.matrixList = matrix;
     if (matrix != null){
       hashcode = this.matrixList.hashCode();
@@ -66,8 +66,8 @@ public class DenseMatrix implements Matrix
       return "";
     }
     StringBuilder matrixString = new StringBuilder();
-    for (List<Integer> line: this.matrixList){
-      for (int number: line){
+    for (List<Double> line: this.matrixList){
+      for (double number: line){
         matrixString.append(number).append(" ");
       }
       matrixString.append("\n");
@@ -76,12 +76,12 @@ public class DenseMatrix implements Matrix
   }
 
 
-  private List<List<Integer>> matrixTransposition(){
-    List<List<Integer>> ret = new ArrayList<>();
+  private List<List<Double>> matrixTransposition(){
+    List<List<Double>> ret = new ArrayList<>();
     int n = this.matrixList.get(0).size();
     for (int i = 0; i < n; i++) {
-      List<Integer> col = new ArrayList<>();
-      for (List<Integer> row : this.matrixList) {
+      List<Double> col = new ArrayList<>();
+      for (List<Double> row : this.matrixList) {
         col.add(row.get(i));
       }
       ret.add(col);
@@ -99,13 +99,13 @@ public class DenseMatrix implements Matrix
    */
   @Override public Matrix mul(Matrix o)
   {
-    List<List<Integer>> matrixMul = new ArrayList<>();
-    List<List<Integer>> matrix1 = this.matrixList;
-    List<List<Integer>> matrix2 = (((DenseMatrix)o).matrixList != null) ? ((DenseMatrix)o).matrixTransposition() : null;
-    int count = 0;
+    List<List<Double>> matrixMul = new ArrayList<>();
+    List<List<Double>> matrix1 = this.matrixList;
+    List<List<Double>> matrix2 = (((DenseMatrix)o).matrixList != null) ? ((DenseMatrix)o).matrixTransposition() : null;
+    double count = 0;
 
     if (matrix1 == null || matrix2 == null){
-      return new DenseMatrix((List<List<Integer>>)null);
+      return new DenseMatrix((List<List<Double>>)null);
     }
 
     try {
@@ -117,13 +117,13 @@ public class DenseMatrix implements Matrix
       throw new RuntimeException(e);
     }
 
-    for (List<Integer> matrix1Line: matrix1){
-      List<Integer> line = new ArrayList<>();
-      for (List<Integer> matrix2Line: matrix2) {
+    for (List<Double> matrix1Line: matrix1){
+      List<Double> line = new ArrayList<>();
+      for (List<Double> matrix2Line: matrix2) {
         for (int i = 0; i < matrix1Line.size(); i++) {
           count += matrix1Line.get(i) * matrix2Line.get(i);
         }
-        line.add(count);
+        line.add((double) Math.round(count * 100) / 100);
         count = 0;
       }
       matrixMul.add(line);
