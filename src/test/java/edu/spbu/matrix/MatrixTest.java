@@ -13,9 +13,9 @@ public class MatrixTest
    */
   @Test
   public void mulDD() {
-//    try(FileWriter writer = new FileWriter("m.txt", false)) {
-//      for (int j = 0; j < 3; j++){
-//        for (int i = 0; i < 14; i++) {
+//    try(FileWriter writer = new FileWriter("sm2.txt", false)) {
+//      for (int j = 0; j < 6; j++){
+//        for (int i = 0; i < 4; i++) {
 //          writer.write(Double.toString(Math.ceil(Math.random() * 100 * 10) / 10) + " ");
 //        }
 //        writer.write(Double.toString(Math.ceil(Math.random() * 100 * 10) / 10) + "\n");
@@ -49,5 +49,14 @@ public class MatrixTest
     Matrix m2 = new DenseMatrix("empty.txt");
     Matrix expected = new DenseMatrix("empty.txt");
     assertEquals(expected, m1.mul(m2));
+  }
+
+  @Test
+  public void mulSparseMatrixDD(){
+    Matrix sm1 = new SparseMatrix("sm1.txt");
+    Matrix sm2 = new SparseMatrix("sm2.txt");
+    Matrix sresult = new SparseMatrix("sresult.txt");
+    Matrix mul = sm1.mul(sm2);
+    System.out.println(mul.equals(sresult));
   }
 }

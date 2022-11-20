@@ -94,7 +94,7 @@ public class DenseMatrix implements Matrix
    * однопоточное умнджение матриц
    * должно поддерживаться для всех 4-х вариантов
    *
-   * @param o - matrix
+   * @param o - DenseMatrix
    * @return - DenseMatrix
    */
   @Override public Matrix mul(Matrix o)
@@ -135,7 +135,7 @@ public class DenseMatrix implements Matrix
   /**
    * многопоточное умножение матриц
    *
-   * @param o - matrix
+   * @param o - DenseMatrix
    * @return -  DenseMatrix
    */
   @Override public Matrix dmul(Matrix o)
@@ -145,7 +145,7 @@ public class DenseMatrix implements Matrix
 
   /**
    * спавнивает с обоими вариантами
-   * @param o - matrix
+   * @param o - DenseMatrix
    * @return - True or False
    */
   @Override public boolean equals(Object o) {
