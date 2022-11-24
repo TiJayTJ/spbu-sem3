@@ -1,8 +1,6 @@
 package edu.spbu.matrix;
 
 import org.junit.Test;
-//import java.io.FileWriter;
-//import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -13,17 +11,6 @@ public class MatrixTest
    */
   @Test
   public void mulDenseMatrixDD() {
-//    try(FileWriter writer = new FileWriter("mSD.txt", false)) {
-//      for (int j = 0; j < 6; j++){
-//        for (int i = 0; i < 3; i++) {
-//          writer.write(Double.toString(Math.ceil(Math.random() * 100 * 10) / 10) + " ");
-//        }
-//        writer.write(Double.toString(Math.ceil(Math.random() * 100 * 10) / 10) + "\n");
-//      }
-//    }
-//    catch(IOException e){
-//      System.out.println(e.getMessage());
-//    }
     Matrix mD1 = new DenseMatrix("mD1.txt");
     Matrix m2 = new DenseMatrix("mD2.txt");
     Matrix expected = new DenseMatrix("result.txt");
