@@ -12,10 +12,10 @@ public class MatrixTest
    * ожидается 4 таких теста
    */
   @Test
-  public void mulDD() {
-//    try(FileWriter writer = new FileWriter("sm2.txt", false)) {
+  public void mulDenseMatrixDD() {
+//    try(FileWriter writer = new FileWriter("mSD.txt", false)) {
 //      for (int j = 0; j < 6; j++){
-//        for (int i = 0; i < 4; i++) {
+//        for (int i = 0; i < 3; i++) {
 //          writer.write(Double.toString(Math.ceil(Math.random() * 100 * 10) / 10) + " ");
 //        }
 //        writer.write(Double.toString(Math.ceil(Math.random() * 100 * 10) / 10) + "\n");
@@ -24,39 +24,70 @@ public class MatrixTest
 //    catch(IOException e){
 //      System.out.println(e.getMessage());
 //    }
-    Matrix m1 = new DenseMatrix("m1.txt");
-    Matrix m2 = new DenseMatrix("m2.txt");
+    Matrix mD1 = new DenseMatrix("mD1.txt");
+    Matrix m2 = new DenseMatrix("mD2.txt");
     Matrix expected = new DenseMatrix("result.txt");
-    assertEquals(expected, m1.mul(m2));
+    assertEquals(expected, mD1.mul(m2));
   }
   @Test
-  public void mulED(){
-    Matrix m1 = new DenseMatrix("m1.txt");
-    Matrix m2 = new DenseMatrix("empty.txt");
+  public void mulDenseMatrixED(){
+    Matrix mD1 = new DenseMatrix("mD1.txt");
+    Matrix mD2 = new DenseMatrix("empty.txt");
     Matrix expected = new DenseMatrix("empty.txt");
-    assertEquals(expected, m1.mul(m2));
+    assertEquals(expected, mD1.mul(mD2));
   }
   @Test
-  public void mulDE(){
-    Matrix m1 = new DenseMatrix("empty.txt");
-    Matrix m2 = new DenseMatrix("m1.txt");
+  public void mulDenseMatrixDE(){
+    Matrix mD1 = new DenseMatrix("empty.txt");
+    Matrix mD2 = new DenseMatrix("mD1.txt");
     Matrix expected = new DenseMatrix("empty.txt");
-    assertEquals(expected, m1.mul(m2));
+    assertEquals(expected, mD1.mul(mD2));
   }
   @Test
-  public void mulEE(){
-    Matrix m1 = new DenseMatrix("empty.txt");
-    Matrix m2 = new DenseMatrix("empty.txt");
+  public void mulDenseMatrixEE(){
+    Matrix mD1 = new DenseMatrix("empty.txt");
+    Matrix mD2 = new DenseMatrix("empty.txt");
     Matrix expected = new DenseMatrix("empty.txt");
-    assertEquals(expected, m1.mul(m2));
+    assertEquals(expected, mD1.mul(mD2));
   }
-
   @Test
-  public void mulSparseMatrixDD(){
-    Matrix sm1 = new SparseMatrix("sm1.txt");
-    Matrix sm2 = new SparseMatrix("sm2.txt");
-    Matrix sresult = new SparseMatrix("sresult.txt");
-    Matrix mul = sm1.mul(sm2);
-    System.out.println(mul.equals(sresult));
+  public void mulSparseMatrixSS(){
+    Matrix mS1 = new SparseMatrix("mS1.txt");
+    Matrix mS2 = new SparseMatrix("mS2.txt");
+    Matrix expected = new SparseMatrix("sresult.txt");
+    Matrix mul = mS1.mul(mS2);
+    assertEquals(expected, mul);
+  }
+  @Test
+  public void mulSparseMatrixES(){
+    Matrix mS1 = new SparseMatrix("empty.txt");
+    Matrix mS2 = new SparseMatrix("mS2.txt");
+    Matrix expected = new SparseMatrix("empty.txt");
+    Matrix mul = mS1.mul(mS2);
+    assertEquals(expected, mul);
+  }
+  @Test
+  public void mulSparseMatrixSE(){
+    Matrix mS1 = new SparseMatrix("mS2.txt");
+    Matrix mS2 = new SparseMatrix("empty.txt");
+    Matrix expected = new SparseMatrix("empty.txt");
+    Matrix mul = mS1.mul(mS2);
+    assertEquals(expected, mul);
+  }
+  @Test
+  public void mulSparseMatrixSD(){
+    Matrix mS1 = new SparseMatrix("mS1.txt");
+    Matrix mS2 = new DenseMatrix("mSD.txt");
+    Matrix expected = new SparseMatrix("SMresult.txt");
+    Matrix mul = mS1.mul(mS2);
+    assertEquals(expected, mul);
+  }
+  @Test
+  public void mulSparseMatrixDS(){
+    Matrix mS1 = new SparseMatrix("mS1.txt");
+    Matrix mS2 = new DenseMatrix("mSD.txt");
+    Matrix expected = new SparseMatrix("SMresult.txt");
+    Matrix mul = mS2.mul(mS1);
+    assertEquals(expected, mul);
   }
 }

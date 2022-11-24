@@ -15,6 +15,8 @@ public class DenseMatrix implements Matrix
 {
   private List<List<Double>> matrixList = new ArrayList<>();
   int hashcode = 0;
+  int column = 0;
+  int row = 0;
 
   /**
    * загружает матрицу из файла
@@ -26,13 +28,14 @@ public class DenseMatrix implements Matrix
       BufferedReader reader = new BufferedReader(fr);
       String line = reader.readLine();
       if (line == null){
-        this.matrixList = null;
+        this.matrixList = new ArrayList<>();
       }
       else{
-        int m = line.split(" ").length;
+        column = line.split(" ").length;
         while (line != null) {
+          row++;
           String[] lineString = line.split(" ");
-          if (lineString.length != m){
+          if (lineString.length != column){
             throw new IOException("Not rectangular matrix");
           }
 
@@ -56,9 +59,12 @@ public class DenseMatrix implements Matrix
   }
   public DenseMatrix(List<List<Double>> matrix){
     this.matrixList = matrix;
-    if (matrix != null){
+    if (!matrix.isEmpty()){
       hashcode = this.matrixList.hashCode();
     }
+  }
+  public List<List<Double>> getMatrixList(){
+    return this.matrixList;
   }
 
   public String toString(){
@@ -101,35 +107,47 @@ public class DenseMatrix implements Matrix
   {
     List<List<Double>> matrixMul = new ArrayList<>();
     List<List<Double>> matrix1 = this.matrixList;
-    List<List<Double>> matrix2 = (((DenseMatrix)o).matrixList != null) ? ((DenseMatrix)o).matrixTransposition() : null;
-    double count = 0;
 
-    if (matrix1 == null || matrix2 == null){
-      return new DenseMatrix((List<List<Double>>)null);
-    }
-
-    try {
-      if (matrix1.get(0).size() != matrix2.get(0).size()) {
-        throw new IOException("The number of columns of matrix 1 is not equal to the number of rows of matrix 2");
+    if (o instanceof DenseMatrix){
+      if (this.row == 0 || this.column == 0 || ((DenseMatrix) o).row == 0 || ((DenseMatrix) o).column == 0) {
+        return new DenseMatrix(new ArrayList<>());
       }
-    }
-    catch (IOException e) {
-      throw new RuntimeException(e);
-    }
 
-    for (List<Double> matrix1Line: matrix1){
-      List<Double> line = new ArrayList<>();
-      for (List<Double> matrix2Line: matrix2) {
-        for (int i = 0; i < matrix1Line.size(); i++) {
-          count += matrix1Line.get(i) * matrix2Line.get(i);
+      List<List<Double>> matrix2 = ((DenseMatrix)o).matrixTransposition();
+      double count = 0;
+
+      try {
+        if (this.column != ((DenseMatrix) o).row) {
+          throw new IOException("The number of columns of matrix 1 is not equal to the number of rows of matrix 2");
         }
-        line.add((double) Math.round(count * 100) / 100);
-        count = 0;
       }
-      matrixMul.add(line);
+      catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+
+      for (List<Double> matrix1Line: matrix1){
+        List<Double> line = new ArrayList<>();
+        for (List<Double> matrix2Line: matrix2) {
+          for (int i = 0; i < this.column; i++) {
+            count += matrix1Line.get(i) * matrix2Line.get(i);
+          }
+          line.add((double) Math.round(count * 100) / 100);
+          count = 0;
+        }
+        matrixMul.add(line);
+      }
+
+      return new DenseMatrix(matrixMul);
     }
 
-    return new DenseMatrix(matrixMul);
+    if (o instanceof SparseMatrix){
+      if (this.row == 0 || this.column == 0 || ((SparseMatrix) o).row == 0 || ((SparseMatrix) o).column == 0) {
+        return new DenseMatrix(new ArrayList<>());
+      }
+      return o.mul(this);
+    }
+
+    return null;
   }
 
   /**
