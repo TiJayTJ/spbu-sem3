@@ -5,12 +5,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
+import static java.lang.Math.abs;
+
 /**
  * Разряженная матрица
  */
 public class SparseMatrix implements Matrix
 {
-  private HashMap<Integer, HashMap<Integer, Double>> matrixHashMap;
+  public HashMap<Integer, HashMap<Integer, Double>> matrixHashMap;
   int column = 0;
   int row = 0;
   int hashcode = 0;
@@ -116,6 +118,37 @@ public class SparseMatrix implements Matrix
       return matrixString.toString();
     }
   }
+  public HashMap<Integer, HashMap<Integer, Double>> matrixTransposition(){
+    HashMap<Integer, HashMap<Integer, Double>> transpMatrix = new HashMap<>();
+    for(Map.Entry<Integer, HashMap<Integer, Double>> line : this.matrixHashMap.entrySet()) {
+      for (Map.Entry<Integer, Double> item : line.getValue().entrySet()) {
+        if(transpMatrix.containsKey(item.getKey())){
+          transpMatrix.get(item.getKey()).put(line.getKey(), item.getValue());
+        }
+        else{
+          HashMap<Integer, Double> hashRow = new HashMap<>();
+          hashRow.put(line.getKey(), item.getValue());
+          transpMatrix.put(item.getKey(), hashRow);
+        }
+      }
+    }
+
+    return transpMatrix;
+  }
+
+  public double getItem(HashMap<Integer, HashMap<Integer, Double>> matrix, int i, int j){
+    if(matrix.containsKey(i)){
+      HashMap<Integer, Double> hashRow = matrix.get(i);
+      if(hashRow.containsKey(j)){
+        return hashRow.get(j);
+      }
+      else{
+        return 0;
+      }
+    }
+      return 0;
+  }
+
   /**
    * однопоточное умнджение матриц
    * должно поддерживаться для всех 4-х вариантов
@@ -133,22 +166,25 @@ public class SparseMatrix implements Matrix
         return new SparseMatrix(new HashMap<>(), 0, 0);
       }
 
-      HashMap<Integer, HashMap<Integer, Double>> matrix2 = ((SparseMatrix)o).matrixHashMap;
+      HashMap<Integer, HashMap<Integer, Double>> matrix2 = ((SparseMatrix)o).matrixTransposition();
 
-      for(Map.Entry<Integer, HashMap<Integer, Double>> line : matrix1.entrySet()) {
-        HashMap<Integer, Double> lineHash = new HashMap<>();
-        for (Map.Entry<Integer, Double> item : line.getValue().entrySet()) {
-          for(int i = 0; i < ((SparseMatrix)o).column; i++){
-            double count = item.getValue() * matrix2.get(item.getKey()).getOrDefault(i, 0.0);
-            if(matrixMul.containsKey(line.getKey())) {
-              double c = matrixMul.get(line.getKey()).getOrDefault(i, 0.0);
-              count += c;
-            }
-            if (count != 0){
-              lineHash.put(i, (double) Math.round(count * 100) / 100);
+      for(Map.Entry<Integer, HashMap<Integer, Double>> lineMatrix1 : matrix1.entrySet()){
+        for(Map.Entry<Integer, HashMap<Integer, Double>> lineMatrix2 : matrix2.entrySet()){
+          for(Map.Entry<Integer, Double> itemMatrix1 : lineMatrix1.getValue().entrySet()){
+            int i = lineMatrix1.getKey(), j = lineMatrix2.getKey(), k = itemMatrix1.getKey();
+            if (lineMatrix2.getValue().containsKey(k)){
+              double newItem = itemMatrix1.getValue() * lineMatrix2.getValue().get(k);
+              double normalized = (double) Math.round(newItem * 100) / 100;
+              if(matrixMul.containsKey(i)){
+                matrixMul.get(i).put(j, getItem(matrixMul, i, j) + normalized);
+              }
+              else {
+                HashMap<Integer, Double> newRow = new HashMap<>();
+                newRow.put(j, normalized);
+                matrixMul.put(i, newRow);
+              }
             }
           }
-          matrixMul.put(line.getKey(), lineHash);
         }
       }
 
@@ -160,25 +196,28 @@ public class SparseMatrix implements Matrix
         return new SparseMatrix(new HashMap<>(), 0, 0);
       }
 
-      List<List<Double>> matrix2 = ((DenseMatrix)o).getMatrixList();
+      Matrix matrix2 = ((DenseMatrix)o).matrixTransposition();
 
-      for(Map.Entry<Integer, HashMap<Integer, Double>> line : matrix1.entrySet()) {
-        HashMap<Integer, Double> lineHash = new HashMap<>();
-        for (Map.Entry<Integer, Double> item : line.getValue().entrySet()) {
-          for(int i = 0; i < ((DenseMatrix)o).column; i++){
-            double count = item.getValue() * matrix2.get(item.getKey()).get(i);
-            if(matrixMul.containsKey(line.getKey())) {
-              double c = matrixMul.get(line.getKey()).getOrDefault(i, 0.0);
-              count += c;
+      for(Map.Entry<Integer, HashMap<Integer, Double>> lineMatrix1 : matrix1.entrySet()){
+        for (int j = 0; j < ((DenseMatrix)matrix2).row; j++){
+          for(Map.Entry<Integer, Double> itemMatrix1 : lineMatrix1.getValue().entrySet()){
+            int i = lineMatrix1.getKey(), k = itemMatrix1.getKey();
+            double newItem = itemMatrix1.getValue() * ((DenseMatrix) matrix2).matrixList.get(j).get(k);
+            if(matrixMul.containsKey(i)){
+              newItem = getItem(matrixMul, i, j) + newItem;
+              newItem = (double) Math.round(newItem * 100) / 100;
+              matrixMul.get(i).put(j, newItem);
             }
-            if (count != 0){
-              lineHash.put(i, (double) Math.round(count * 100) / 100);
+            else {
+              HashMap<Integer, Double> newRow = new HashMap<>();
+              newRow.put(j, newItem);
+              matrixMul.put(i, newRow);
             }
           }
-          matrixMul.put(line.getKey(), lineHash);
         }
       }
-      return new SparseMatrix(matrixMul, ((DenseMatrix) o).row, ((DenseMatrix)o).column);
+
+      return new SparseMatrix(matrixMul, this.row, ((DenseMatrix)o).column);
     }
 
     return new SparseMatrix(new HashMap<>(), 0, 0);
@@ -199,11 +238,12 @@ public class SparseMatrix implements Matrix
     HashMap<Integer, HashMap<Integer, Double>> matrix = ((SparseMatrix)o).matrixHashMap;
     for(Map.Entry<Integer, HashMap<Integer, Double>> line : this.matrixHashMap.entrySet()) {
       for (Map.Entry<Integer, Double> item : line.getValue().entrySet()) {
-        if (!Objects.equals(item.getValue(), matrix.get(line.getKey()).get(item.getKey()))){
+        if (abs(item.getValue() - matrix.get(line.getKey()).get(item.getKey())) > 0.0001){
           return false;
         }
       }
     }
+
     return true;
   }
   /**
@@ -215,16 +255,49 @@ public class SparseMatrix implements Matrix
     if(this == o){
       return true;
     }
-    else if(((SparseMatrix) o).hashcode != this.hashcode) {
-      return false;
-    }
-    else{
-      if (this.hashcode == 0){
-        return true;
+    if(o instanceof SparseMatrix){
+      if (this.row != ((SparseMatrix) o).row || this.column != ((SparseMatrix) o).column){
+        return false;
+      }
+      if(((SparseMatrix) o).hashcode != this.hashcode) {
+        return false;
       }
       else{
-        return this.elementByElementComparison(o) && ((SparseMatrix)o).elementByElementComparison(this);
+        if (this.hashcode == 0){
+          return true;
+        }
+        else{
+          return this.elementByElementComparison(o) && ((SparseMatrix)o).elementByElementComparison(this);
+        }
       }
     }
+    if(o instanceof DenseMatrix){
+      if (this.row != ((DenseMatrix) o).row || this.column != ((DenseMatrix) o).column){
+        return false;
+      }
+      if(((DenseMatrix) o).hashcode != this.hashcode) {
+        return false;
+      }
+      else{
+        if (this.hashcode == 0){
+          return true;
+        }
+        else{
+          List<List<Double>> matrix = ((DenseMatrix) o).matrixList;
+          for(int i = 0; i < this.row; i++){
+            for (int j = 0; j < this.column; j++){
+              double value = this.matrixHashMap.containsKey(i) ?
+                      this.matrixHashMap.get(i).getOrDefault(j, 0.0): 0;
+              if(abs(value - matrix.get(i).get(j)) > 0.1){
+                return false;
+              }
+            }
+          }
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 }

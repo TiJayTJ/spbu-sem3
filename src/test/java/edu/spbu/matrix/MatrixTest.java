@@ -14,7 +14,8 @@ public class MatrixTest
     Matrix mD1 = new DenseMatrix("mD1.txt");
     Matrix m2 = new DenseMatrix("mD2.txt");
     Matrix expected = new DenseMatrix("result.txt");
-    assertEquals(expected, mD1.mul(m2));
+    Matrix mul = mD1.mul(m2);
+    assertEquals(expected, mul);
   }
   @Test
   public void mulDenseMatrixED(){
@@ -63,9 +64,9 @@ public class MatrixTest
   }
   @Test
   public void mulSparseMatrixSD(){
-    Matrix mS1 = new SparseMatrix("mS1.txt");
-    Matrix mS2 = new DenseMatrix("mSD.txt");
-    Matrix expected = new SparseMatrix("SMresult.txt");
+    Matrix mS1 = new SparseMatrix("mD1.txt");
+    Matrix mS2 = new DenseMatrix("mD2.txt");
+    Matrix expected = new SparseMatrix("result.txt");
     Matrix mul = mS1.mul(mS2);
     assertEquals(expected, mul);
   }
@@ -73,7 +74,7 @@ public class MatrixTest
   public void mulSparseMatrixDS(){
     Matrix mS1 = new SparseMatrix("mS1.txt");
     Matrix mS2 = new DenseMatrix("mSD.txt");
-    Matrix expected = new SparseMatrix("SMresult.txt");
+    Matrix expected = new SparseMatrix("SDresult.txt");
     Matrix mul = mS2.mul(mS1);
     assertEquals(expected, mul);
   }

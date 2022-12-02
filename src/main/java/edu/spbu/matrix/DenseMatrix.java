@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  */
 public class DenseMatrix implements Matrix
 {
-  private List<List<Double>> matrixList = new ArrayList<>();
+  public List<List<Double>> matrixList = new ArrayList<>();
   int hashcode = 0;
   int column = 0;
   int row = 0;
@@ -57,14 +57,13 @@ public class DenseMatrix implements Matrix
       System.out.println(e.getMessage());
     }
   }
-  public DenseMatrix(List<List<Double>> matrix){
+  public DenseMatrix(List<List<Double>> matrix, int newRow, int newColumn){
     this.matrixList = matrix;
+    row = newRow;
+    column = newColumn;
     if (!matrix.isEmpty()){
       hashcode = this.matrixList.hashCode();
     }
-  }
-  public List<List<Double>> getMatrixList(){
-    return this.matrixList;
   }
 
   public String toString(){
@@ -82,7 +81,7 @@ public class DenseMatrix implements Matrix
   }
 
 
-  private List<List<Double>> matrixTransposition(){
+  public Matrix matrixTransposition(){
     List<List<Double>> ret = new ArrayList<>();
     int n = this.matrixList.get(0).size();
     for (int i = 0; i < n; i++) {
@@ -92,7 +91,7 @@ public class DenseMatrix implements Matrix
       }
       ret.add(col);
     }
-    return ret;
+    return new DenseMatrix(ret, this.column, this.row);
 
   }
 
@@ -110,10 +109,10 @@ public class DenseMatrix implements Matrix
 
     if (o instanceof DenseMatrix){
       if (this.row == 0 || this.column == 0 || ((DenseMatrix) o).row == 0 || ((DenseMatrix) o).column == 0) {
-        return new DenseMatrix(new ArrayList<>());
+        return new DenseMatrix(new ArrayList<>(), 0, 0);
       }
 
-      List<List<Double>> matrix2 = ((DenseMatrix)o).matrixTransposition();
+      Matrix matrix2 = ((DenseMatrix)o).matrixTransposition();
       double count = 0;
 
       try {
@@ -127,7 +126,7 @@ public class DenseMatrix implements Matrix
 
       for (List<Double> matrix1Line: matrix1){
         List<Double> line = new ArrayList<>();
-        for (List<Double> matrix2Line: matrix2) {
+        for (List<Double> matrix2Line: ((DenseMatrix)matrix2).matrixList) {
           for (int i = 0; i < this.column; i++) {
             count += matrix1Line.get(i) * matrix2Line.get(i);
           }
@@ -137,12 +136,12 @@ public class DenseMatrix implements Matrix
         matrixMul.add(line);
       }
 
-      return new DenseMatrix(matrixMul);
+      return new DenseMatrix(matrixMul, this.row, ((DenseMatrix) o).column);
     }
 
     if (o instanceof SparseMatrix){
       if (this.row == 0 || this.column == 0 || ((SparseMatrix) o).row == 0 || ((SparseMatrix) o).column == 0) {
-        return new DenseMatrix(new ArrayList<>());
+        return new DenseMatrix(new ArrayList<>(), 0, 0);
       }
       return o.mul(this);
     }
@@ -170,19 +169,37 @@ public class DenseMatrix implements Matrix
     if(this == o){
       return true;
     }
-    if (o.getClass() != this.getClass()){
-      return false;
-    }
-    if(((DenseMatrix) o).hashcode != this.hashcode) {
-      return false;
-    }
-    else{
-      if (this.hashcode == 0){
-        return true;
+    if(o instanceof DenseMatrix){
+      if (this.row != ((DenseMatrix) o).row || this.column != ((DenseMatrix) o).column){
+        return false;
+      }
+      if(((DenseMatrix) o).hashcode != this.hashcode) {
+        return false;
       }
       else{
-        return this.matrixList.equals(((DenseMatrix) o).matrixList);
+        if (this.hashcode == 0){
+          return true;
+        }
+        else{
+          return this.matrixList.equals(((DenseMatrix) o).matrixList);
+        }
       }
     }
+
+    if(o instanceof SparseMatrix){
+      List<List<Double>> matrix = this.matrixList;
+      for(int i = 0; i < this.row; i++){
+        for (int j = 0; j < this.column; j++){
+          double value = ((SparseMatrix) o).matrixHashMap.containsKey(i) ?
+                  ((SparseMatrix) o).matrixHashMap.get(i).getOrDefault(j, 0.0): 0;
+          if(value != matrix.get(i).get(j)){
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    return false;
   }
 }
