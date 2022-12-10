@@ -3,20 +3,17 @@ package edu.spbu.matrix;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.BufferedReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Плотная матрица
  */
 public class DenseMatrix implements Matrix
 {
-  public List<List<Double>> matrixList = new ArrayList<>();
-  int hashcode = 0;
-  int column = 0;
-  int row = 0;
+  public static final int rounding = 1000;
+  public double[][] matrixList = null;
+  public int hashcode = 0;
+  public int column = 0;
+  public int row = 0;
 
   /**
    * загружает матрицу из файла
@@ -26,28 +23,29 @@ public class DenseMatrix implements Matrix
     try {
       FileReader fr = new FileReader(fileName);
       BufferedReader reader = new BufferedReader(fr);
-      String line = reader.readLine();
-      if (line == null){
-        this.matrixList = new ArrayList<>();
-      }
-      else{
+      while (reader.readLine() != null) { row++; }
+
+      if (row != 0){
+        fr = new FileReader(fileName);
+        reader = new BufferedReader(fr);
+        String line = reader.readLine();
         column = line.split(" ").length;
-        while (line != null) {
-          row++;
+        matrixList = new double[row][column];
+
+
+        for (int i = 0; i < row; i++){
           String[] lineString = line.split(" ");
           if (lineString.length != column){
             throw new IOException("Not rectangular matrix");
           }
 
-          double[] lineDouble = new double[lineString.length];
-          for (int i = 0; i < lineString.length; i++){
-            lineDouble[i] = Double.parseDouble(lineString[i]);
+          for (int j = 0; j < column; j++){
+            matrixList[i][j] = Double.parseDouble(lineString[j]);
           }
 
-          this.matrixList.add(Arrays.stream(lineDouble).boxed().collect(Collectors.toList()));
           line = reader.readLine();
         }
-        hashcode = this.matrixList.hashCode();
+        hashcode = matrixHashCode(this.matrixList);
       }
 
       reader.close();
@@ -57,42 +55,50 @@ public class DenseMatrix implements Matrix
       System.out.println(e.getMessage());
     }
   }
-  public DenseMatrix(List<List<Double>> matrix, int newRow, int newColumn){
+  public DenseMatrix(double[][] matrix){
     this.matrixList = matrix;
-    row = newRow;
-    column = newColumn;
-    if (!matrix.isEmpty()){
-      hashcode = this.matrixList.hashCode();
+    if (matrix != null){
+      row = matrix.length;
+      column = matrix[0].length;
+      hashcode = matrixHashCode(this.matrixList);
     }
   }
+  public DenseMatrix(){}
 
   public String toString(){
     if (this.matrixList == null) {
       return "";
     }
+
     StringBuilder matrixString = new StringBuilder();
-    for (List<Double> line: this.matrixList){
-      for (double number: line){
-        matrixString.append(number).append(" ");
+    for (int i = 0; i < row; i++){
+      for (int j = 0; j < column; j++){
+        matrixString.append((double)Math.round(matrixList[i][j] * rounding) / rounding).append(" ");
       }
       matrixString.append("\n");
     }
     return matrixString.toString();
   }
 
+  public int matrixHashCode(double[][] matrix){
+    int newHashcode = 0;
+    for (int i = 0; i < this.row; i++){
+      for (int j = 0; j < this.column; j++){
+        newHashcode += (int)matrix[i][j] % 100;
+      }
+      newHashcode %= 1000000;
+    }
+    return newHashcode;
+  }
 
   public Matrix matrixTransposition(){
-    List<List<Double>> ret = new ArrayList<>();
-    int n = this.matrixList.get(0).size();
-    for (int i = 0; i < n; i++) {
-      List<Double> col = new ArrayList<>();
-      for (List<Double> row : this.matrixList) {
-        col.add(row.get(i));
+    double[][] ret = new double[this.column][this.row];
+    for (int i = 0; i < this.row; i++) {
+      for (int j = 0; j < this.column; j++){
+        ret[j][i] = this.matrixList[i][j];
       }
-      ret.add(col);
     }
-    return new DenseMatrix(ret, this.column, this.row);
-
+    return new DenseMatrix(ret);
   }
 
   /**
@@ -104,16 +110,14 @@ public class DenseMatrix implements Matrix
    */
   @Override public Matrix mul(Matrix o)
   {
-    List<List<Double>> matrixMul = new ArrayList<>();
-    List<List<Double>> matrix1 = this.matrixList;
+    double[][] matrix1 = this.matrixList;
 
     if (o instanceof DenseMatrix){
-      if (this.row == 0 || this.column == 0 || ((DenseMatrix) o).row == 0 || ((DenseMatrix) o).column == 0) {
-        return new DenseMatrix(new ArrayList<>(), 0, 0);
-      }
+      double[][] matrixMul = new double[this.row][((DenseMatrix)o).column];
 
-      Matrix matrix2 = ((DenseMatrix)o).matrixTransposition();
-      double count = 0;
+      if (this.row == 0 || this.column == 0 || ((DenseMatrix) o).row == 0 || ((DenseMatrix) o).column == 0) {
+        return new DenseMatrix();
+      }
 
       try {
         if (this.column != ((DenseMatrix) o).row) {
@@ -121,32 +125,79 @@ public class DenseMatrix implements Matrix
         }
       }
       catch (IOException e) {
-        throw new RuntimeException(e);
+        throw new IllegalArgumentException(e);
       }
 
-      for (List<Double> matrix1Line: matrix1){
-        List<Double> line = new ArrayList<>();
-        for (List<Double> matrix2Line: ((DenseMatrix)matrix2).matrixList) {
-          for (int i = 0; i < this.column; i++) {
-            count += matrix1Line.get(i) * matrix2Line.get(i);
+      Matrix matrix2 = ((DenseMatrix)o).matrixTransposition();
+
+      for (int i = 0; i < this.row; i++){
+        for (int j = 0; j < ((DenseMatrix)matrix2).row; j++){
+          for (int k = 0; k < this.column; k++) {
+            matrixMul[i][j] += matrix1[i][k] * ((DenseMatrix) matrix2).matrixList[j][k];
           }
-          line.add((double) Math.round(count * 100) / 100);
-          count = 0;
         }
-        matrixMul.add(line);
       }
 
-      return new DenseMatrix(matrixMul, this.row, ((DenseMatrix) o).column);
+      return new DenseMatrix(matrixMul);
     }
 
     if (o instanceof SparseMatrix){
-      if (this.row == 0 || this.column == 0 || ((SparseMatrix) o).row == 0 || ((SparseMatrix) o).column == 0) {
-        return new DenseMatrix(new ArrayList<>(), 0, 0);
-      }
       return o.mul(this);
     }
 
     return null;
+  }
+
+  public static class matrixPartitionsMul extends Thread{
+    public double[][] matrix1;
+    public double[][] matrix2;
+    public double[][] matrixMul;
+    public int threadNumber;
+    public int numberOfElements;
+    public int numberOfThreads;
+    matrixPartitionsMul(double[][] matrix1, double[][] matrix2, double[][] matrixMul, int threadNumber, int numberOfElements, int numberOfThreads){
+      this.matrix1 = matrix1;
+      this.matrix2 = matrix2;
+      this.matrixMul = matrixMul;
+      this.threadNumber = threadNumber;
+      this.numberOfElements = numberOfElements;
+      this.numberOfThreads = numberOfThreads;
+    }
+
+    @Override public void run(){
+      int i_begin = (threadNumber * numberOfElements) / matrix2.length;
+      int j_begin = (threadNumber * numberOfElements) % matrix2.length;
+      int i_end, j_end;
+      if (threadNumber != numberOfThreads - 1)
+      {
+        i_end = (((threadNumber+1) * numberOfElements)-1) / matrix2.length;
+        j_end = (((threadNumber+1) * numberOfElements)-1) % matrix2.length;
+      }
+      else {
+        i_end = matrix1.length - 1;
+        j_end = matrix2.length - 1;
+      }
+
+      //System.out.println("begin: (" + i_begin + ", " + j_begin + ")\tend: (" + i_end + ", " + j_end + ")");
+
+      int i = i_begin;
+      int j = j_begin;
+      while(i < i_end){
+        if (j >= matrix2.length){
+          j = 0;
+          i++;
+        }
+        for (int k = 0; k < matrix1[0].length; k++){
+          matrixMul[i][j] += matrix1[i][k] * matrix2[j][k];
+        }
+        j++;
+      }
+      for (; j <= j_end; j++){
+        for (int k = 0; k < matrix1[0].length; k++){
+          matrixMul[i][j] += matrix1[i][k] * matrix2[j][k];
+        }
+      }
+    }
   }
 
   /**
@@ -157,7 +208,34 @@ public class DenseMatrix implements Matrix
    */
   @Override public Matrix dmul(Matrix o)
   {
-    return null;
+    double[][] matrix1 = this.matrixList;
+    int numberOfThreads = Runtime.getRuntime().availableProcessors();
+
+    if(o instanceof DenseMatrix) {
+      double[][] matrix2 = ((DenseMatrix)((DenseMatrix)o).matrixTransposition()).matrixList;
+      double[][] matrixMul = new double[this.row][((DenseMatrix)o).column];
+
+      int numberOfElements = (this.row * ((DenseMatrix)o).column) / numberOfThreads;
+      numberOfThreads++;
+      matrixPartitionsMul[] allThreads = new matrixPartitionsMul[numberOfThreads];
+
+      for (int i = 0; i < numberOfThreads; i++){
+        allThreads[i] = new matrixPartitionsMul(matrix1, matrix2, matrixMul, i, numberOfElements, numberOfThreads);
+        allThreads[i].start();
+      }
+
+      try {
+        for (int i = 0; i < numberOfThreads; i++){
+          allThreads[i].join();
+        }
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+
+      return new DenseMatrix(matrixMul);
+    }
+
+    return new SparseMatrix();
   }
 
   /**
@@ -177,22 +255,29 @@ public class DenseMatrix implements Matrix
         return false;
       }
       else{
-        if (this.hashcode == 0){
-          return true;
+        if (this.hashcode != 0) {
+          for (int i = 0; i < this.row; i++) {
+            for (int j = 0; j < this.column; j++) {
+              if (Math.abs(this.matrixList[i][j] - ((DenseMatrix) o).matrixList[i][j]) > 0.0001) {
+                return false;
+              }
+            }
+          }
         }
-        else{
-          return this.matrixList.equals(((DenseMatrix) o).matrixList);
-        }
+        return true;
       }
     }
 
     if(o instanceof SparseMatrix){
-      List<List<Double>> matrix = this.matrixList;
+      if (this.row != ((SparseMatrix) o).row || this.column != ((SparseMatrix) o).column){
+        return false;
+      }
+
       for(int i = 0; i < this.row; i++){
         for (int j = 0; j < this.column; j++){
           double value = ((SparseMatrix) o).matrixHashMap.containsKey(i) ?
                   ((SparseMatrix) o).matrixHashMap.get(i).getOrDefault(j, 0.0): 0;
-          if(value != matrix.get(i).get(j)){
+          if(Math.abs(value - this.matrixList[i][j]) > 0.0001){
             return false;
           }
         }
