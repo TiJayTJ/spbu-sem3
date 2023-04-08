@@ -16,7 +16,6 @@ public class HTTPClient {
         InputStream input = clientSocket.getInputStream();
 
         PrintStream print = new PrintStream(output);
-        OutputStreamWriter writer = new OutputStreamWriter(output);
 
         print.printf("GET /%s HTTP/1.1%n", getInfo);
         print.printf("Host: %s:%s%n%n", url, port);
@@ -36,7 +35,7 @@ public class HTTPClient {
 
     public static void main(String[] args) throws IOException {
         HTTPClient client = new HTTPClient();
-        client.request("localhost/exercise1.html", 8000);
+        client.request("localhost/exercise1.html", 8080);
     }
 
 }
