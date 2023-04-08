@@ -45,7 +45,7 @@ public class IntSortTest
     }
   }
 
-  //@Test
+  @Test
   public void testSortList() throws Exception {
     int array[] = generateRandomIntArray(ARRAY_SIZE, SEED);
     List<Integer> list = new ArrayList<Integer>(ARRAY_SIZE);

@@ -3,6 +3,7 @@ package edu.spbu.matrix;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.BufferedReader;
+import java.util.HashMap;
 
 /**
  * Плотная матрица
@@ -10,6 +11,7 @@ import java.io.BufferedReader;
 public class DenseMatrix implements Matrix
 {
   public static final int rounding = 1000;
+  public static final double Epsilon = 0.0001;
   public double[][] matrixList = null;
   public int hashcode = 0;
   public int column = 0;
@@ -148,14 +150,16 @@ public class DenseMatrix implements Matrix
     return null;
   }
 
-  public static class matrixPartitionsMul extends Thread{
+  public static class matrixPartMulDense extends Thread{
     public double[][] matrix1;
     public double[][] matrix2;
     public double[][] matrixMul;
     public int threadNumber;
     public int numberOfElements;
     public int numberOfThreads;
-    matrixPartitionsMul(double[][] matrix1, double[][] matrix2, double[][] matrixMul, int threadNumber, int numberOfElements, int numberOfThreads){
+    matrixPartMulDense(double[][] matrix1, double[][] matrix2,
+                        double[][] matrixMul, int threadNumber,
+                        int numberOfElements, int numberOfThreads){
       this.matrix1 = matrix1;
       this.matrix2 = matrix2;
       this.matrixMul = matrixMul;
@@ -177,8 +181,6 @@ public class DenseMatrix implements Matrix
         i_end = matrix1.length - 1;
         j_end = matrix2.length - 1;
       }
-
-      //System.out.println("begin: (" + i_begin + ", " + j_begin + ")\tend: (" + i_end + ", " + j_end + ")");
 
       int i = i_begin;
       int j = j_begin;
@@ -208,19 +210,19 @@ public class DenseMatrix implements Matrix
    */
   @Override public Matrix dmul(Matrix o)
   {
-    double[][] matrix1 = this.matrixList;
     int numberOfThreads = Runtime.getRuntime().availableProcessors();
 
     if(o instanceof DenseMatrix) {
+      double[][] matrix1 = this.matrixList;
       double[][] matrix2 = ((DenseMatrix)((DenseMatrix)o).matrixTransposition()).matrixList;
       double[][] matrixMul = new double[this.row][((DenseMatrix)o).column];
 
       int numberOfElements = (this.row * ((DenseMatrix)o).column) / numberOfThreads;
       numberOfThreads++;
-      matrixPartitionsMul[] allThreads = new matrixPartitionsMul[numberOfThreads];
+      matrixPartMulDense[] allThreads = new matrixPartMulDense[numberOfThreads];
 
       for (int i = 0; i < numberOfThreads; i++){
-        allThreads[i] = new matrixPartitionsMul(matrix1, matrix2, matrixMul, i, numberOfElements, numberOfThreads);
+        allThreads[i] = new matrixPartMulDense(matrix1, matrix2, matrixMul, i, numberOfElements, numberOfThreads);
         allThreads[i].start();
       }
 
@@ -233,6 +235,13 @@ public class DenseMatrix implements Matrix
       }
 
       return new DenseMatrix(matrixMul);
+    }
+
+    if(o instanceof SparseMatrix){
+      Matrix matrix1 = this.matrixTransposition();
+      Matrix matrix2 = ((SparseMatrix)o).matrixTransposition();
+
+      return ((SparseMatrix)matrix2.dmul(matrix1)).matrixTransposition();
     }
 
     return new SparseMatrix();
@@ -258,7 +267,7 @@ public class DenseMatrix implements Matrix
         if (this.hashcode != 0) {
           for (int i = 0; i < this.row; i++) {
             for (int j = 0; j < this.column; j++) {
-              if (Math.abs(this.matrixList[i][j] - ((DenseMatrix) o).matrixList[i][j]) > 0.0001) {
+              if (Math.abs(this.matrixList[i][j] - ((DenseMatrix) o).matrixList[i][j]) > Epsilon) {
                 return false;
               }
             }
@@ -277,7 +286,7 @@ public class DenseMatrix implements Matrix
         for (int j = 0; j < this.column; j++){
           double value = ((SparseMatrix) o).matrixHashMap.containsKey(i) ?
                   ((SparseMatrix) o).matrixHashMap.get(i).getOrDefault(j, 0.0): 0;
-          if(Math.abs(value - this.matrixList[i][j]) > 0.0001){
+          if(Math.abs(value - this.matrixList[i][j]) > Epsilon){
             return false;
           }
         }

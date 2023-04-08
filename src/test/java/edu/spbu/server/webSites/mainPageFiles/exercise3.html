@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <link rel="icon" href="/favicon.png" type="image/x-icon">
+  <link rel="shortcut icon" href="http://localhost:8000/favicon.png" type="image/x-icon">
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body bgcolor="#E9E9E9">
+<header class = "header">
+    <div class="container" style="font-family:Arial; font-size:18px;">
+        <a href="index.html" class="logo"><img src="favicon.png" alt="Логотип"></a>
+        <nav class="list">
+            <ul>
+                <li class="button"><a href="index.html" >Главная</a></li>
+                <li class="button"><a href="#">Задания</a>
+                    <ul>
+                        <li class="button"><a href="exercise1.html">Задание 1</a></li>
+                        <li class="button"><a href="exercise2.html">Задание 2</a></li>
+                        <li class="button"><a href="exercise3.html">Задание 3</a></li>
+                        <li class="button"><a href="combinedSites/site1.html">Задание 4</a></li>
+                        <li class="button"><a href="exercise5.html">Задание 5</a></li>
+                        <li class="button"><a href="exercise6/page1.html">Задание 6</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<div class="main" style="font-family:Comic Sans MS; font-size:25px;">
+    <div class="container">
+        <h1>Какие же есть таблицы в HTML?</h1>
+        <div class="col-1-2">
+            <TABLE border="5" cellspacing="2" align="center">
+                <caption>Таблица умножения</caption>
+                <tr>
+                    <th bgcolor="#A7A7A7">*</th>
+                    <td bgcolor="#A7A7A7">1</td>
+                    <td bgcolor="#A7A7A7">2</td>
+                    <td bgcolor="#A7A7A7">3</td>
+                </tr>
+                <tr>
+                    <td bgcolor="#A7A7A7">1</td>
+                    <td bgcolor="#A7A7A7">1</td>
+                    <td bgcolor="#A7A7A7">2</td>
+                    <td bgcolor="#A7A7A7">3</td>
+                </tr>
+                <tr>
+                    <td bgcolor="#A7A7A7">2</td>
+                    <td bgcolor="#A7A7A7">2</td>
+                    <td bgcolor="#A7A7A7">4</td>
+                    <td bgcolor="#A7A7A7">6</td>
+                </tr>
+                <tr>
+                    <td bgcolor="#A7A7A7">3</td>
+                    <td bgcolor="#A7A7A7">3</td>
+                    <td bgcolor="#A7A7A7">6</td>
+                    <td bgcolor="#A7A7A7">9</td>
+                </tr>
+            </TABLE>
+        </div>
+        <div class="col-1-2">
+            <TABLE border="5" cellspacing="2" align="center">
+                <caption>Таблица ячеек 1</caption>
+                <tr>
+                    <th bgcolor="#A7A7A7">Заголовок 1</th>
+                    <th bgcolor="#A7A7A7">Заголовок 2</th>
+                </tr>
+                <tr>
+                    <td rowspan="3">Ячейка 1</td>
+                    <td>Ячейка 2</td>
+                </tr>
+                <tr>
+                    <td>Ячейка 3</td>
+                </tr>
+                <tr>
+                    <td>Ячейка 4</td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">Ячейка 5</td>
+                </tr>
+            </TABLE>
+        </div>
+        <div class="col-1-2">
+            <TABLE border="5" cellspacing="2" align="center">
+                <caption>Таблица ячеек 2</caption>
+                <tr>
+                    <td bgcolor="#A7A7A7">Заголовок 1</td>
+                    <td bgcolor="#A7A7A7">Заголовок 2</td>
+                    <td bgcolor="#A7A7A7">Заголовок 3</td>
+                </tr>
+                <tr>
+                    <td rowspan="4" colspan="2" bgcolor="#A7A7A7">Ячейка 1</td>
+                    <td align="center">Ячейка 2</td>
+                    <td align="center">Ячейка 3</td>
+                    <td align="center">Ячейка 4</td>
+                </tr>
+                <tr>
+                    <td colspan="3" bgcolor="#A7A7A7" align="center">Ячейка 5</td>
+                </tr>
+                <tr>
+                    <td colspan="3" align="center">Ячейка 6</td>
+                </tr>
+                <tr>
+                    <td colspan="3" bgcolor="#A7A7A7" align="center">Ячейка 7</td>
+                </tr>
+                <tr>
+                    <td colspan="5" bgcolor="#A7A7A7" align="center">Ячейка 8</td>
+                </tr>
+            </TABLE>
+        </div>
+        <div class="col-1-2">
+            <TABLE border="5" cellspacing="2" align="center">
+                <caption>Таблица ячеек 3</caption>
+                <tr>
+                    <td bgcolor="#A7A7A7">Ячейка 1</td>
+                    <td>
+                        <TABLE border="2">
+                            <tr>
+                                <td>Ячейка 2-1</td>
+                                <td>Ячейка 2-2</td>
+                            </tr>
+                            <tr>
+                                <td>Ячейка 3-1</td>
+                                <td>Ячейка 3-2</td>
+                            </tr>
+                            <tr>
+                                <td>Ячейка 4-1</td>
+                                <td>Ячейка 4-2</td>
+                            </tr>
+                        </TABLE>
+                    </td>
+            </TABLE>
+        </div>
+        <div class="col-1">
+            <TABLE>
+                <caption><h1 align="center">Стихотворение М.Ю.Лермонтова</h1></caption>
+                <tr border="0">
+                    <td border="0" width="1000">
+                        <img src="materials/lermont.jpg" HEIGHT="500">
+                    </td>
+                    <td>
+                        <TABLE width="500">
+                            <tr bordeer="0" width="1000"></tr>
+                            <tr valign="top">
+                                <h1>Утес</h1></tr>
+                            <tr><p align="center">Ночевала тучка золотая<br>
+                                На груди утеса-великана;<br>
+                                Утром в путь она умчалась рано,<br>
+                                По лазури весело играя;<br></p>
+
+                                <p align="center">Но остался влажный след в морщине<br>
+                                Старого утеса. Одиноко<br>
+                                Он стоит, задумался глубоко,<br>
+                                И тихонько плачет он в пустыне</p>
+                            </tr>
+                        </TABLE>
+                    </td>
+                    <td border="0" width="1000">
+                        <img src="materials/poem.jpg" width="500">
+                    </td>
+                </tr>
+            </TABLE>
+        </div>
+  </div>
+</div>
+
+<footer></footer>
+</body>
+</html>
