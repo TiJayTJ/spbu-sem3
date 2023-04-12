@@ -2,10 +2,8 @@ package edu.spbu.server;
 
 import java.io.*;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
@@ -38,18 +36,16 @@ public class HTTPServer {
                 String str = scanner.next();
                 System.out.println(str);
                 List<String> request = List.of(str.split(" "));
-    
-                // opening error files
-                Path error400 = Path.of(directory, "error400.html");
-                var error400Bytes = Files.readAllBytes(error400);
-                Path error404 = Path.of(directory, "error404.html");
-                var error404Bytes = Files.readAllBytes(error404);
                 
                 // checking for a get request
                 if(!Objects.equals(request.get(0), "GET")){
+                    Path error400 = Path.of(directory, "error400.html");
+                    var error400Bytes = Files.readAllBytes(error400);
                     sendResponse(output, 400, "Bad Request", error400Bytes.length);
                     output.write(error400Bytes);
-                    return;
+                    System.out.println("socket closed\n");
+                    socket.close();
+                    continue;
                 }
                 
                 // checking for the existence of a file
@@ -59,13 +55,15 @@ public class HTTPServer {
                 if (Files.exists(filePath) && !Files.isDirectory(filePath)){
                     var fileByte = Files.readAllBytes(filePath);
                     sendResponse(output, 200, "OK", fileByte.length);
+                    System.out.println(filePath);
                     output.write(fileByte);
                 }
                 else {
+                    Path error404 = Path.of(directory, "error404.html");
+                    var error404Bytes = Files.readAllBytes(error404);
                     sendResponse(output, 404, "Not found", error404Bytes.length);
                     output.write(error404Bytes);
                 }
-                System.out.println(filePath);
         
                 System.out.println("socket closed\n");
                 socket.close();
