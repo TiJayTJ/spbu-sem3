@@ -46,6 +46,7 @@ nav ul ul {
     display: none;
     position: absolute;
     top: 100%;
+    background: #D9FAFF;
 }
 
 /* отображаем выпадающий список при наведении */
